@@ -3,6 +3,14 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { analyzeText } from "@/lib/nlp/pipeline";
+import type { Json } from "@/types/database";
+
+// Round-trips through JSON so optional fields (e.g. `alternatives?`) and
+// nested interfaces satisfy the generated `Json` column type exactly.
+function toJson(value: unknown): Json {
+  return JSON.parse(JSON.stringify(value));
+}
 
 const MAX_CHARS = 20000;
 
@@ -43,21 +51,21 @@ export async function createSample(
     return { error: sampleError?.message ?? "Failed to save sample." };
   }
 
-  // Stub analysis until the NLP pipeline (Phase D) replaces this with
-  // real POS-tagging/repetition/sentence-structure output.
+  const analysis = analyzeText(rawText);
+
   const { error: analysisError } = await supabase.from("analysis_results").insert({
     sample_id: sample.id,
-    verb_frequency: [],
-    adjective_frequency: [],
-    repetition_flags: [],
-    sentence_stats: {},
-    clause_complexity: {},
-    distinct_word_ratio: 0,
-    overused_word_count: 0,
-    avg_sentence_length: 0,
-    sentence_length_stddev: 0,
-    complex_sentence_ratio: 0,
-    top_flagged_words: [],
+    verb_frequency: toJson(analysis.verbFrequency),
+    adjective_frequency: toJson(analysis.adjectiveFrequency),
+    repetition_flags: toJson(analysis.repetitionFlags),
+    sentence_stats: toJson(analysis.sentenceStats),
+    clause_complexity: toJson(analysis.clauseComplexity),
+    distinct_word_ratio: analysis.distinctWordRatio,
+    overused_word_count: analysis.overusedWordCount,
+    avg_sentence_length: analysis.sentenceStats.avgLength,
+    sentence_length_stddev: analysis.sentenceStats.stdDevLength,
+    complex_sentence_ratio: analysis.clauseComplexity.complexRatio,
+    top_flagged_words: analysis.topFlaggedWords,
   });
 
   if (analysisError) {
