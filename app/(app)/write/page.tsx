@@ -1,10 +1,10 @@
+import { WriteForm } from "@/components/WriteForm";
+
 export default function WritePage() {
   return (
-    <div className="space-y-2">
-      <h1 className="text-lg font-semibold">Write</h1>
-      <p className="text-sm text-zinc-500">
-        Sample submission form coming in the next phase.
-      </p>
+    <div className="space-y-4">
+      <h1 className="text-lg font-semibold">New sample</h1>
+      <WriteForm />
     </div>
   );
 }
