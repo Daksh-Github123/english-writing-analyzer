@@ -7,8 +7,8 @@ detection, sentence-structure stats, and trend tracking across submissions.
 ## Stack
 
 - Next.js (App Router, TypeScript), Tailwind CSS
-- Supabase — Postgres for samples/analysis history, Auth (magic link) gating
-  the whole app to a single user
+- Supabase — Postgres for samples/analysis history, Auth (email + password)
+  gating the whole app to a single user
 - [wink-nlp](https://winkjs.org/wink-nlp/) for POS tagging, lemmatization,
   and sentence/clause analysis (runs locally, no external API calls)
 
@@ -19,8 +19,9 @@ detection, sentence-structure stats, and trend tracking across submissions.
 2. `npm install`
 3. `npm run dev`, then open [http://localhost:3000](http://localhost:3000).
 
-Sign-in uses a Supabase magic link sent to your email; the app redirects
-unauthenticated requests to `/login`.
+The first visit to `/login` should be used to create the one account (there's
+a "Create an account" link on the sign-in form); after that, sign in
+normally. The app redirects unauthenticated requests to `/login`.
 
 ## Database schema
 
@@ -29,8 +30,5 @@ their row-level security policies (every row is scoped to `auth.uid()`).
 
 ## Deployment
 
-Deployed on Vercel, connected to this GitHub repo for auto-deploy on push to
-`main`. Required environment variables: `NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL` (see
-`.env.example`). The Supabase project's Auth redirect URL allowlist must
-include `<site-url>/auth/callback` for both local and production URLs.
+Deployed on Vercel. Required environment variables: `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` (see `.env.example`).
